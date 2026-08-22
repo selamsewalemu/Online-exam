@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getExamsApi, deleteExamApi, updateExamApi } from '../../api/examApi';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import toast from 'react-hot-toast';
+import ImportExamButton from '../../components/ImportExamButton';
 
 const STATUS_BADGE = {
   draft: 'badge-gray', active: 'badge-green', scheduled: 'badge-blue',
@@ -50,7 +51,10 @@ const TeacherExams = () => {
           <h1 className="text-2xl font-bold text-gray-900">My Exams</h1>
           <p className="text-gray-500 text-sm mt-1">{exams.length} exam(s)</p>
         </div>
-        <Link to="/teacher/exams/new" className="btn-primary">+ Create Exam</Link>
+        <div className="flex gap-2">
+          <ImportExamButton />
+          <Link to="/teacher/exams/new" className="btn-primary">+ Create Exam</Link>
+        </div>
       </div>
 
       <input type="text" placeholder="Search exams..." value={search}

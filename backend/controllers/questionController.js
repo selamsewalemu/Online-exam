@@ -1,5 +1,60 @@
 const Question = require('../models/Question');
 const Exam = require('../models/Exam');
+const mammoth = require('mammoth');
+
+const cleanRtf = (value) => value
+  .replace(/\\par[d]?/g, '\n')
+  .replace(/\\[a-z]+\d* ?/gi, '')
+  .replace(/[{}]/g, '')
+  .replace(/\r/g, '');
+
+const parseLabeledQuestions = (text) => {
+  const questions = [];
+  let current = null;
+  const finish = () => {
+    if (current?.questionText) {
+      questions.push(current);
+    }
+    current = null;
+  };
+
+  cleanRtf(text).split('\n').map(line => line.trim()).filter(Boolean).forEach(line => {
+    const field = line.match(/^([^:]+):\s*(.*)$/);
+    if (!field) return;
+    const label = field[1].toLowerCase();
+    const value = field[2].trim();
+    if (label === 'question') {
+      finish();
+      current = { questionText: value, questionType: 'single', difficultyLevel: 'medium', marks: 1, options: [], matchingPairs: [], correctAnswerText: '', explanation: '' };
+    } else if (current && label === 'type') current.questionType = value.toLowerCase();
+    else if (current && label === 'difficulty') current.difficultyLevel = value.toLowerCase();
+    else if (current && label === 'marks') current.marks = Number(value) || 1;
+    else if (current && /^option [a-z]+$/.test(label)) {
+      const [optionText, correctText = 'no'] = value.split('|').map(part => part.trim());
+      current.options.push({ text: optionText, isCorrect: correctText.toLowerCase() === 'yes' });
+    } else if (current && /^pair \d+$/.test(label)) {
+      const [left, right] = value.split('->').map(part => part.trim());
+      current.matchingPairs.push({ left, right });
+    } else if (current && (label === 'correct answer' || label === 'model answer')) current.correctAnswerText = value;
+    else if (current && label === 'explanation') current.explanation = value;
+  });
+  finish();
+  return questions;
+};
+
+const readImportedQuestions = async (file) => {
+  const extension = file.originalname.toLowerCase().split('.').pop();
+  if (extension === 'json') {
+    const parsed = JSON.parse(file.buffer.toString('utf8'));
+    return Array.isArray(parsed) ? parsed : parsed.questions;
+  }
+  if (extension === 'docx') {
+    const result = await mammoth.extractRawText({ buffer: file.buffer });
+    return parseLabeledQuestions(result.value);
+  }
+  if (extension === 'rtf' || extension === 'txt') return parseLabeledQuestions(file.buffer.toString('utf8'));
+  throw new Error('Supported file types are .json, .docx, .rtf, and .txt');
+};
 
 // Recompute exam totalMarks
 const syncExamTotalMarks = async (examId) => {
@@ -56,6 +111,19 @@ const bulkCreateBankQuestions = async (req, res, next) => {
     const { questions } = req.body;
     const withMeta = questions.map(q => ({ ...q, isInBank: true, exam: null, createdBy: req.user._id }));
     const created = await Question.insertMany(withMeta);
+    res.status(201).json({ success: true, count: created.length, questions: created });
+  } catch (e) { next(e); }
+};
+
+// POST /api/questions/bank/import — import JSON, DOCX, RTF, or labeled TXT
+const importBankQuestions = async (req, res, next) => {
+  try {
+    if (!req.file) return res.status(400).json({ success: false, message: 'Please select a question file' });
+    const questions = await readImportedQuestions(req.file);
+    if (!Array.isArray(questions) || questions.length === 0)
+      return res.status(400).json({ success: false, message: 'No questions found in the file' });
+    const withMeta = questions.map(q => ({ ...q, isInBank: true, exam: null, createdBy: req.user._id }));
+    const created = await Question.insertMany(withMeta, { ordered: true });
     res.status(201).json({ success: true, count: created.length, questions: created });
   } catch (e) { next(e); }
 };
@@ -155,6 +223,6 @@ const deleteQuestion = async (req, res, next) => {
 };
 
 module.exports = {
-  getBankQuestions, createBankQuestion, bulkCreateBankQuestions, addBankQuestionToExam,
+  getBankQuestions, createBankQuestion, bulkCreateBankQuestions, importBankQuestions, addBankQuestionToExam,
   createQuestion, createBulkQuestions, getQuestion, updateQuestion, deleteQuestion,
 };

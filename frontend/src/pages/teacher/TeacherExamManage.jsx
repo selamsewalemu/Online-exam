@@ -90,9 +90,9 @@ const TeacherExamManage = () => {
               <span>⏱ {exam.duration} min</span>
               <span>❓ {questions.length} questions</span>
               <span>📊 {totalMarks} marks (pass: {exam.passingMarks})</span>
-              <span className="text-green-600">Easy: {easyCount}</span>
-              <span className="text-yellow-600">Medium: {medCount}</span>
-              <span className="text-red-600">Hard: {hardCount}</span>
+              <span className="text-green-600">Easy questions: {easyCount}</span>
+              <span className="text-yellow-600">Medium questions: {medCount}</span>
+              <span className="text-red-600">Hard questions: {hardCount}</span>
             </div>
           </div>
           <div className="flex gap-2">

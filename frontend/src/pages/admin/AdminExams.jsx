@@ -4,6 +4,7 @@ import { getExamsApi, deleteExamApi, updateExamApi } from '../../api/examApi';
 import ExamCard from '../../components/ExamCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import toast from 'react-hot-toast';
+import ImportExamButton from '../../components/ImportExamButton';
 
 const AdminExams = () => {
   const [exams, setExams] = useState([]);
@@ -54,9 +55,10 @@ const AdminExams = () => {
           <h1 className="text-2xl font-bold text-gray-900">Manage Exams</h1>
           <p className="text-gray-500 text-sm mt-1">{exams.length} total exam(s)</p>
         </div>
-        <Link to="/admin/exams/new" className="btn-primary">
-          + Create Exam
-        </Link>
+        <div className="flex gap-2">
+          <ImportExamButton basePath="/admin" />
+          <Link to="/admin/exams/new" className="btn-primary">+ Create Exam</Link>
+        </div>
       </div>
 
       <div className="mb-6">

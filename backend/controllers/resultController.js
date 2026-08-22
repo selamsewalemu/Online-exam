@@ -290,10 +290,23 @@ const getExamAnalytics = async (req, res, next) => {
 
     // Question-level analysis
     const questionStats = {};
+    const difficultyStats = {
+      easy: { totalAttempts: 0, failedAttempts: 0, failedStudents: new Set() },
+      medium: { totalAttempts: 0, failedAttempts: 0, failedStudents: new Set() },
+      hard: { totalAttempts: 0, failedAttempts: 0, failedStudents: new Set() },
+    };
     results.forEach(result => {
       result.answers.forEach(ans => {
         if (!ans.question) return;
         const qId = ans.question._id.toString();
+        const difficulty = ans.question.difficultyLevel;
+        if (difficultyStats[difficulty]) {
+          difficultyStats[difficulty].totalAttempts++;
+          if (!ans.isCorrect) {
+            difficultyStats[difficulty].failedAttempts++;
+            difficultyStats[difficulty].failedStudents.add(result.student.toString());
+          }
+        }
         if (!questionStats[qId]) {
           questionStats[qId] = {
             questionText: ans.question.questionText,
@@ -320,6 +333,15 @@ const getExamAnalytics = async (req, res, next) => {
         ? Math.round((stat.correctAttempts / stat.totalAttempts) * 100) : null,
     }));
 
+    const difficultyAnalysis = Object.entries(difficultyStats).map(([difficulty, stat]) => ({
+      difficulty,
+      failedStudents: stat.failedStudents.size,
+      failedAttempts: stat.failedAttempts,
+      totalAttempts: stat.totalAttempts,
+      failedPercent: stat.totalAttempts > 0
+        ? Math.round((stat.failedAttempts / stat.totalAttempts) * 100) : 0,
+    }));
+
     res.json({
       success: true,
       analytics: {
@@ -330,6 +352,7 @@ const getExamAnalytics = async (req, res, next) => {
         avgPercent,
         highest, lowest,
         gradeDist,
+        difficultyAnalysis,
         questionAnalysis,
       },
     });

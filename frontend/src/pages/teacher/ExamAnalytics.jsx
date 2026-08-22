@@ -29,7 +29,7 @@ const ExamAnalytics = () => {
     </div>
   );
 
-  const { totalSubmissions, passed, failed, passRate, avgScore, avgPercent, highest, lowest, gradeDist, questionAnalysis } = analytics;
+  const { totalSubmissions, passed, failed, passRate, avgScore, avgPercent, highest, lowest, gradeDist, difficultyAnalysis, questionAnalysis } = analytics;
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -108,6 +108,30 @@ const ExamAnalytics = () => {
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Student failures by question difficulty */}
+      <div className="card mb-6">
+        <div className="mb-4">
+          <h2 className="font-semibold text-gray-900">Student Failures by Difficulty</h2>
+          <p className="text-xs text-gray-400 mt-1">Students who answered at least one question incorrectly.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {(difficultyAnalysis || []).map((item) => {
+            const tone = item.difficulty === 'easy' ? 'bg-green-50 border-green-100' : item.difficulty === 'medium' ? 'bg-yellow-50 border-yellow-100' : 'bg-red-50 border-red-100';
+            return (
+              <div key={item.difficulty} className={`rounded-lg border p-4 ${tone}`}>
+                <div className="flex items-center justify-between">
+                  <span className={`font-semibold capitalize ${DIFF_COLOR[item.difficulty]}`}>{item.difficulty}</span>
+                  <span className="text-xs text-gray-500">{item.failedPercent}% wrong</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-900 mt-2">{item.failedStudents}</p>
+                <p className="text-xs text-gray-500">student{item.failedStudents === 1 ? '' : 's'} failed</p>
+                <p className="text-xs text-gray-400 mt-1">{item.failedAttempts}/{item.totalAttempts} answers incorrect</p>
+              </div>
+            );
+          })}
         </div>
       </div>
 

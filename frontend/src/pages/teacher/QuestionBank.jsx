@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { getBankQuestionsApi, createBankQuestionApi, updateQuestionApi, deleteQuestionApi } from '../../api/questionApi';
+import { useEffect, useRef, useState } from 'react';
+import { getBankQuestionsApi, createBankQuestionApi, updateQuestionApi, deleteQuestionApi, importBankQuestionsApi } from '../../api/questionApi';
 import QuestionForm from '../../components/QuestionForm';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -14,6 +14,7 @@ const QuestionBank = () => {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [filters, setFilters] = useState({ subject: '', difficulty: '', type: '', search: '' });
+  const fileInputRef = useRef(null);
 
   const load = (f = filters) => {
     setLoading(true);
@@ -65,6 +66,19 @@ const QuestionBank = () => {
     setShowForm(true);
   };
 
+  const handleImport = async (event) => {
+    const file = event.target.files[0];
+    event.target.value = '';
+    if (!file) return;
+    try {
+      const { data } = await importBankQuestionsApi(file);
+      toast.success(`${data.count} question${data.count === 1 ? '' : 's'} imported`);
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Import failed');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-6">
@@ -72,9 +86,11 @@ const QuestionBank = () => {
           <h1 className="text-2xl font-bold text-gray-900">Question Bank</h1>
           <p className="text-gray-500 text-sm mt-1">{total} questions stored</p>
         </div>
-        <button onClick={() => { setEditing(null); setShowForm(true); }} className="btn-primary">
-          + Add Question
-        </button>
+        <div className="flex gap-2">
+          <input ref={fileInputRef} type="file" accept=".json,.docx,.rtf,.txt" onChange={handleImport} className="hidden" />
+          <button onClick={() => fileInputRef.current?.click()} className="btn-secondary">Import File</button>
+          <button onClick={() => { setEditing(null); setShowForm(true); }} className="btn-primary">+ Add Question</button>
+        </div>
       </div>
 
       {/* Filters */}

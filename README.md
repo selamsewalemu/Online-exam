@@ -23,6 +23,38 @@ A full-stack online exam portal built with **React (Vite + TailwindCSS)** on the
 
 ---
 
+## Question Upload Format
+
+Use [QUESTION_UPLOAD_TEMPLATE.rtf](QUESTION_UPLOAD_TEMPLATE.rtf) as a Word-compatible preparation template. It includes answered examples for single choice, multiple choice, true/false, short answer, fill-in-the-blank, essay, and matching questions.
+
+The Question Bank now accepts `.json`, `.docx`, `.rtf`, and `.txt` imports. Word and text files must follow the labels in the template. JSON can be imported through the Question Bank or sent to `POST /api/questions/bank/import`; the existing bulk APIs remain available at `POST /api/questions/bulk` and `POST /api/questions/bank/bulk`. Each question must use this shape:
+
+```json
+{
+    "questionText": "Which language runs in a web browser?",
+    "questionType": "single",
+    "difficultyLevel": "easy",
+    "marks": 1,
+    "options": [
+        { "text": "JavaScript", "isCorrect": true },
+        { "text": "Python", "isCorrect": false }
+    ],
+    "correctAnswerText": "",
+    "matchingPairs": [],
+    "explanation": "JavaScript runs in web browsers."
+}
+```
+
+For `multiple`, mark every correct option with `isCorrect: true`. For `shortanswer` and `fillinblank`, put the answer in `correctAnswerText`. For `essay`, use `correctAnswerText` as the model answer. For `matching`, use `{ "left": "...", "right": "..." }` objects in `matchingPairs`.
+
+## Exam Upload Format
+
+Use [EXAM_UPLOAD_TEMPLATE.rtf](EXAM_UPLOAD_TEMPLATE.rtf) from **Admin > Exams** or **Teacher > My Exams**. The import accepts `.docx`, `.rtf`, `.txt`, and `.json`, creates the exam with all questions, calculates total marks, and saves it as a draft.
+
+For JSON exam imports, use `{ "exam": { "title": "...", "subject": "...", "duration": 30, "passingMarks": 40 }, "questions": [] }`. The question objects use the same format described above.
+
+---
+
 ## Project Structure
 
 ```
@@ -110,13 +142,6 @@ Frontend runs on **http://localhost:5173**
 > The Vite dev server proxies all `/api` requests to `http://localhost:5000` automatically.
 
 ---
-
-## Demo Credentials (after seeding)
-
-| Role    | Email                | Password   |
-|---------|----------------------|------------|
-| Admin   | admin@exam.com       | admin123   |
-| Student | student@exam.com     | student123 |
 
 ---
 
