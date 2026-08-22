@@ -1,0 +1,9 @@
+# Secrets and local environment configuration
+backend/.env
+
+# Local data/bootstrap scripts
+backend/seed.js
+
+# Dependencies and build output
+**/node_modules/
+frontend/dist/
