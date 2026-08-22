@@ -31,44 +31,29 @@ const seed = async () => {
   const mathDept = await Department.create({ name: 'Mathematics', code: 'MATH' });
   console.log('✅ Departments created');
 
-  // ── Users (credentials read from .env — never hardcoded) ─────────────────
-  const adminEmail    = process.env.SEED_ADMIN_EMAIL    || 'admin@exam.com';
-  const adminPass     = process.env.SEED_ADMIN_PASSWORD;
-  const teacherEmail  = process.env.SEED_TEACHER_EMAIL  || 'teacher@exam.com';
-  const teacherPass   = process.env.SEED_TEACHER_PASSWORD;
-  const teacher2Email = process.env.SEED_TEACHER2_EMAIL || 'teacher2@exam.com';
-  const studentEmail  = process.env.SEED_STUDENT_EMAIL  || 'student@exam.com';
-  const studentPass   = process.env.SEED_STUDENT_PASSWORD;
-  const student2Email = process.env.SEED_STUDENT2_EMAIL || 'student2@exam.com';
-
-  if (!adminPass || !teacherPass || !studentPass) {
-    console.error('❌  Missing required seed passwords in .env');
-    console.error('    Set SEED_ADMIN_PASSWORD, SEED_TEACHER_PASSWORD, SEED_STUDENT_PASSWORD');
-    process.exit(1);
-  }
-
+  // ── Users ────────────────────────────────────────────────────────────────
   const admin = await User.create({
-    name: 'Admin User', email: adminEmail, password: adminPass,
+    name: 'Admin User', email: 'admin@exam.com', password: 'admin123',
     role: 'admin', department: csDept._id,
   });
 
   const teacher1 = await User.create({
-    name: 'Dr. Sarah Johnson', email: teacherEmail, password: teacherPass,
+    name: 'Dr. Sarah Johnson', email: 'teacher@exam.com', password: 'teacher123',
     role: 'teacher', department: csDept._id, employeeId: 'EMP001',
   });
 
   const teacher2 = await User.create({
-    name: 'Prof. Mark Williams', email: teacher2Email, password: teacherPass,
+    name: 'Prof. Mark Williams', email: 'teacher2@exam.com', password: 'teacher123',
     role: 'teacher', department: mathDept._id, employeeId: 'EMP002',
   });
 
   const student1 = await User.create({
-    name: 'John Student', email: studentEmail, password: studentPass,
+    name: 'John Student', email: 'student@exam.com', password: 'student123',
     role: 'student', department: csDept._id, studentId: 'STU001',
   });
 
   const student2 = await User.create({
-    name: 'Jane Smith', email: student2Email, password: studentPass,
+    name: 'Jane Smith', email: 'student2@exam.com', password: 'student123',
     role: 'student', department: csDept._id, studentId: 'STU002',
   });
   console.log('✅ Users created');
@@ -211,10 +196,16 @@ const seed = async () => {
     type: 'system',
   });
 
-  console.log('\n✅ Seed complete. Credentials were set from your .env file.');
-  console.log('   See .env.example for the required variable names.\n');
+  console.log('\n╔═══════════════════════════════════════╗');
+  console.log('║        Demo Credentials               ║');
+  console.log('╠═══════════════════════════════════════╣');
+  console.log('║ Admin  : admin@exam.com   / admin123  ║');
+  console.log('║ Teacher: teacher@exam.com / teacher123║');
+  console.log('║ Student: student@exam.com / student123║');
+  console.log('╚═══════════════════════════════════════╝\n');
+
+  await mongoose.disconnect();
+  console.log('✅ Seed complete.');
 };
 
-seed()
-  .catch(err => { console.error(err); process.exit(1); })
-  .finally(() => setTimeout(() => process.exit(0), 1000));
+seed().catch(err => { console.error(err); process.exit(1); });
