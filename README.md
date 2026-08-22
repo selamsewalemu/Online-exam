@@ -111,13 +111,6 @@ Frontend runs on **http://localhost:5173**
 
 ---
 
-## Demo Credentials (after seeding)
-
-| Role    | Email                | Password   |
-|---------|----------------------|------------|
-| Admin   | admin@exam.com       | admin123   |
-| Student | student@exam.com     | student123 |
-
 ---
 
 ## API Reference
