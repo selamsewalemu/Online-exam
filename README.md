@@ -159,13 +159,22 @@ routing so direct page links work on GitHub Pages.
 ## API Reference
 
 ### Auth
+`Public` means the endpoint does not require an existing JWT token. It does not expose
+passwords or make account data public. Login and registration must remain public so a
+user can create an account or obtain a token; all account-management endpoints are
+protected.
+
 | Method | Endpoint                  | Access  | Description           |
 |--------|---------------------------|---------|-----------------------|
-| POST   | /api/auth/register        | Public  | Register new user     |
-| POST   | /api/auth/login           | Public  | Login                 |
+| POST   | /api/auth/register        | Public* | Register new user     |
+| POST   | /api/auth/login           | Public* | Login                 |
 | GET    | /api/auth/me              | Private | Get own profile       |
 | PUT    | /api/auth/me              | Private | Update profile        |
 | PUT    | /api/auth/change-password | Private | Change password       |
+
+To hide the source code from GitHub, change the repository visibility to **Private** in
+GitHub repository **Settings > General > Danger Zone > Change repository visibility**.
+That setting is separate from the API access controls above.
 
 ### Exams
 | Method | Endpoint                  | Access  | Description                      |
