@@ -207,6 +207,7 @@ const getExamQuestions = async (req, res, next) => {
         delete qObj.correctAnswerText;
         delete qObj.explanation;
         delete qObj.matchingPairs; // will be handled separately if needed
+        delete qObj.difficultyLevel;
         return qObj;
       });
     }

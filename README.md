@@ -141,6 +141,17 @@ Frontend runs on **http://localhost:5173**
 
 > The Vite dev server proxies all `/api` requests to `http://localhost:5000` automatically.
 
+### Deploying with a GitHub link
+
+A GitHub repository link only shows the source code; it does not run the React frontend,
+Node backend, or MongoDB. Deploy the `frontend` folder to a static host such as GitHub
+Pages, and deploy the `backend` folder plus MongoDB to a service such as Render or Railway.
+
+Before building the frontend, set `VITE_API_URL` to the public backend API URL, including
+the `/api` suffix (for example, `https://your-backend.example.com/api`). For the deployed
+frontend, set the backend `CLIENT_URL` to its public frontend URL. The frontend uses hash
+routing so direct page links work on GitHub Pages.
+
 ---
 
 ---
